@@ -1,7 +1,7 @@
 -- to run: sqlite3 <datebase.db> < data/scripts/script.sql
-
-drop table if exists products;
 drop table if exists vendors;
+drop table if exists warehouse_bin;
+drop table if exists products;
 
 create table vendors (
 	id integer primary key autoincrement,
@@ -12,17 +12,31 @@ create table vendors (
 	address_zip varchar(5)
 );
 
+create table warehouse_bin (
+	id integer primary key autoincrement,
+	bin varchar(100),
+	aisle varchar(10),
+	shelf varchar(10)
+);
+
+
 create table products (
 	id integer primary key autoincrement,
 	vendor_id integer,
 	product varchar(50) not null,
 	product_code varchar(60) not null,
-	description text,
-	cost real,
-	selling real,
+	p_description text,
 	units_ctn integer,
 	ctn_pallet integer,
 	units_pallet integer,
-	cost_pallet integer,
-	foreign key (vendor_id) references vendors(id)
+	cost_pallet real,
+	selling_pallet real,
+	cost_ctn real,
+	selling_ctn real,
+	cost_unit real,
+	selling_unit real,
+	wh_bin_id integer,
+	foreign key (vendor_id) references vendors(id),
+	foreign key (wh_bin_id) references warehouse_bin(id)
 );
+
