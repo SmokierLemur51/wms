@@ -15,10 +15,11 @@ func (h Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
     }
 }
 
-
 func ConfigureRoutes(router *chi.Mux) {
-    // https://go-chi.io/#/pages/routing
     router.Method(http.MethodGet, "/", Handler(IndexHandler))
+    router.Method(http.MethodGet, "/inventory", Handler(InventoryHandler))    
+
+    // router.Method(http.MethodPost, "/create-product", Handler(CreateProductHandler))
 }
 
 

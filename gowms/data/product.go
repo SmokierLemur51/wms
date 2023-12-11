@@ -10,9 +10,10 @@ import (
 
 // What all do we need?
 
-// insert into database (checking if it exists first)
+// done		insert into database (checking if it exists first)
+// done		calculate cost per item based off of pallet
+
 // update in the database
-// calculate cost per item based off of pallet
 // 		which i think should be done after recieved into warehouse by tms system
 // know warehouse locations, how many are in each bin
 // track daily sales of the item for end of day reports
@@ -29,6 +30,7 @@ type Unit struct {
 type Product struct {
 	Id            int
 	VendorId      int
+	Status		  int
 	Product       string
 	ProductCode   string
 	Description   string
@@ -41,13 +43,23 @@ type Product struct {
 	SellingCtn    float64
 	CostUnit      float64
 	SellingUnit   float64
-	// locations []WarehouseBin
+	// Locations     []WarehouseBin
 }
 
-func (p *Product) CostPerItem() {
-	// takes the total spent on a pallet, ctn per pallet, and unitsCTN to calcualte cost per <3
-	p.UnitsPallet = (p.CtnPallet * p.UnitsCtn)
-	// p.CostPallet
+func RandomProducts() []Product {
+	return []Product{
+		{Product: "Pops", ProductCode: "874", Description: "Kevin Malone - The Office",
+			UnitsCtn: 12, CtnPallet: 48, CostPallet: 4500.00},
+		{Product: "HydroFlask", ProductCode: "jhafdkljklfjdlk", Description: "Drink water, aesthetically.",
+			UnitsCtn: 6, CtnPallet: 45, CostPallet: 6200.00},
+	}	
+}
+
+
+func PopulateProducts(db *sql.DB, p []Product) {
+	for _, product := range p {
+		product.InsertProduct(db)
+	}
 }
 
 func CheckExisting(db *sql.DB, product string) (bool, error) {
@@ -70,7 +82,6 @@ func CheckExisting(db *sql.DB, product string) (bool, error) {
 	return false, nil
 }
 
-// needs complete rewrite of the insert, maybe need all data first
 func (p Product) InsertProduct(db *sql.DB) {
 	var execute bool
 	var err error
@@ -84,28 +95,10 @@ func (p Product) InsertProduct(db *sql.DB) {
 	switch execute {
 	case false:
 		_, err := db.Exec(
-			"INSERT INTO products (product, product_code, p_description, cost_pallet, units_ctn, ctn_pallet) VALUES (?,?,?,?,?,?,?,?,?)",
-			p.Product, p.ProductCode, p.Description, p.CostPallet, p.UnitsCtn, p.CtnPallet,
+			"INSERT INTO products (product, product_code, p_description, units_ctn, ctn_pallet, units_pallet, cost_pallet, cost_ctn, cost_unit) VALUES (?,?,?,?,?,?,?,?,?)",
+			p.Product, p.ProductCode, p.Description, p.UnitsCtn, p.CtnPallet, (p.CtnPallet*p.UnitsCtn), 
+			p.CostPallet, (p.CostPallet/(float64(p.CtnPallet))), ((p.CostPallet/float64(p.CtnPallet))/float64(p.UnitsCtn)),
 		)
-		// create table products (
-		// 	id integer primary key autoincrement,
-		// 	vendor_id integer,
-		// 	product varchar(50) not null,
-		// 	product_code varchar(60) not null,
-		// 	p_description text,
-		// 	units_ctn integer,
-		// 	ctn_pallet integer,
-		// 	units_pallet integer,
-		// 	cost_pallet real,
-		// 	selling_pallet real,
-		// 	cost_ctn real,
-		// 	selling_ctn real,
-		// 	cost_unit real,
-		// 	selling_unit real,
-		// 	wh_bin_id integer,
-		// 	foreign key (vendor_id) references vendors(id),
-		// 	foreign key (wh_bin_id) references warehouse_bin(id)
-		// );
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -115,4 +108,11 @@ func (p Product) InsertProduct(db *sql.DB) {
 
 }
 
+func (p *Product) UpdateCostPallet(cost float64) {}
+
 func (p *Product) RecieveToLocation() {}
+
+func (p *Product) UpdateLocation() {}
+
+func (p *Product) UpdatePricing(margin float64) {} 
+

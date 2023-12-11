@@ -3,6 +3,8 @@ package routes
 import (
     "net/http"
     "html/template"
+
+    "github.com/SmokierLemur51/gowms/data"
 )
 
 type PublicPageData struct {
@@ -12,11 +14,13 @@ type PublicPageData struct {
     Warehouse string
     Content string
     CSS string
+    Vendors []data.Vendor
+    Products []data.Product
 }
 
 var CSS_URL string = "/static/css/main.css"
 
-func (p PublicPageData)RenderHTMLTemplate(w http.ResponseWriter, data PublicPageData) {
+func (p PublicPageData) RenderHTMLTemplate(w http.ResponseWriter, data PublicPageData) {
     tmpl, err := template.ParseFiles("templates/" + p.Page)
     if err != nil {
         return

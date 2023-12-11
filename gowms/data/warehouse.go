@@ -12,6 +12,7 @@ type WarehouseBin struct {
 	Quanity  int
 }
 
+
 func (w WarehouseBin) InsertBin() {}
 
 func (w *WarehouseBin) RecieveProductIntoBin(p *Product) {} // does this need * ?

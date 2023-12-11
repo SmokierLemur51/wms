@@ -23,19 +23,8 @@ func init() {
 		log.Fatal(err)
 	}
 	defer db.Close()
-
-	pops := data.Product{
-		Product: "Pops", ProductCode: "874", Description: "Kevin Malone - The Office",
-		UnitsCtn: 12, CtnPallet: 48, CostPallet: 4500.00,
-	}
-	hydro := data.Product{
-		Product: "HydroFlask", ProductCode: "jhafdkljklfjdlk", Description: "Drink water, aesthetically.",
-		UnitsCtn: 6, CtnPallet: 45, CostPallet: 6200.00,
-	}
-
-	pops.InsertProduct(db)
-	hydro.InsertProduct(db)
-
+	data.PopulateVendors(db, data.RandomVendors())
+	data.PopulateProducts(db, data.RandomProducts())
 }
 
 func main() {
