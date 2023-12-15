@@ -1,0 +1,16 @@
+First Entry
+
+The goal is to get to a working service up, so this may rack up some along the way.
+
+~ data/products.go ~
+ 
+LoadAllStockProducts() & InsertService() > 
+	There is a problem with the being able to insert null fields into the tables, 
+	had to go through and manually upate all products to be able to work on the table. 
+
+	Is there a way to pass over if the value is null??
+
+
+~ routes/auth.go & main.go ~
+
+The problem is in generating jwt tokens, I think it is done in the command line. 

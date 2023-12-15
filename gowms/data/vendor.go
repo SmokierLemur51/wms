@@ -33,7 +33,8 @@ func PopulateVendors(db *sql.DB, v []Vendor) {
 		vendor.InsertVendor(db)
 	}
 }
-
+// end testing
+// ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 // vendor methods
 func (v Vendor) InsertVendor(db *sql.DB, ) {
 	var execute bool
@@ -58,9 +59,58 @@ func (v Vendor) InsertVendor(db *sql.DB, ) {
 	}
 }
 
-func (v Vendor) LoadAllStockedProducts() {}
+func (v *Vendor) UpdateVendor(db *sql.DB) {}
 
-func (v Vendor) LoadSpecialOrderProducts() {}
+
+func (v Vendor) LoadAllStockProducts(db *sql.DB) {
+	// whole func needs some review
+	query := `
+		SELECT id, vendor_id, status_id, product, product_code, p_description, units_ctn, ctn_pallet, units_pallet,
+		cost_pallet, selling_pallet, cost_ctn, selling_ctn, cost_unit, selling_unit FROM proudcts
+		WHERE status_id = 1 AND vendor_id = ?
+	`
+	rows, err := db.Query(query, v.Id)
+	if err != nil {
+		log.Fatal(err)
+	} 
+	for rows.Next() {
+		var p Product
+		if err := rows.Scan(
+			&p.Id, &p.VendorId, &p.Status, &p.Product, &p.ProductCode, &p.Description, &p.UnitsCtn,
+			&p.CtnPallet, &p.UnitsPallet, &p.CostPallet, &p.SellingPallet, &p.CostCtn, &p.SellingCtn,
+			&p.CostUnit, &p.SellingUnit,
+		)
+		err != nil {
+			log.Fatal(err)
+		}
+		v.StockProducts = append(v.StockProducts, p) 
+	}
+}
+
+func (v Vendor) LoadSpecialOrderProducts(db *sql.DB) {
+	// whole func needs some review
+	query := `
+		SELECT id, vendor_id, status_id, product, product_code, p_description, units_ctn, ctn_pallet, units_pallet,
+		cost_pallet, selling_pallet, cost_ctn, selling_ctn, cost_unit, selling_unit FROM proudcts
+		WHERE status_id = 2 AND vendor_id = ?
+	`
+	rows, err := db.Query(query, v.Id)
+	if err != nil {
+		log.Fatal(err)
+	} 
+	for rows.Next() {
+		var p Product
+		if err := rows.Scan(
+			&p.Id, &p.VendorId, &p.Status, &p.Product, &p.ProductCode, &p.Description, &p.UnitsCtn,
+			&p.CtnPallet, &p.UnitsPallet, &p.CostPallet, &p.SellingPallet, &p.CostCtn, &p.SellingCtn,
+			&p.CostUnit, &p.SellingUnit,
+		)
+		err != nil {
+			log.Fatal(err)
+		}
+		v.StockProducts = append(v.StockProducts, p) 
+	}
+}
 
 // queries
 func CheckVendorExistence(db *sql.DB, vendor string) (bool, error) {
@@ -83,4 +133,31 @@ func CheckVendorExistence(db *sql.DB, vendor string) (bool, error) {
 	return false, nil
 }
 
-func FindVendorId(db *sql.DB, v string) Vendor {}
+func LoadVendorByName(db *sql.DB, vendor string) Vendor {
+	rows, err := db.Query(
+		"SELECT id, vendor, address_street, address_street_2, address_city, address_state, address_zip FROM vendors WHERE vendor = ?",
+		vendor,
+	)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer rows.Close()
+	var v Vendor
+	for rows.Next() {
+		err := rows.Scan(&v.Id, &v.Vendor, &v.Street1, &v.Street2, &v.City, &v.State, &v.Zip)
+		if err != nil {
+			log.Fatal(err)
+		}
+		log.Printf("\nID: %d\tVendor: %s", v.Id, v.Vendor)
+	}
+
+	if err := rows.Err(); err != nil {
+		log.Fatal(err)
+	}
+	return v
+}
+
+func FindVendorId(db *sql.DB, v string) (int) {
+	return 1
+}
+

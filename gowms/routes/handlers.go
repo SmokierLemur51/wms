@@ -2,9 +2,10 @@ package routes
 
 import (
     "net/http"
-    // "log"
-    // "strconv"
-    // "github.com/SmokierLemur51/gowms/data"
+    "log"
+    "database/sql"
+    "github.com/SmokierLemur51/gowms/data"
+    _ "github.com/mattn/go-sqlite3"
 )
 
 
@@ -36,6 +37,28 @@ func InventoryHandler(w http.ResponseWriter, r *http.Request) error {
     return nil
 }
 
+
+func ProductsHandler(w http.ResponseWriter, r *http.Request) error {
+    db, err := sql.Open("sqlite3", data.DB_FILE)
+    if err != nil {
+        return err
+    }
+    page := PublicPageData{
+        Page: "products.html",
+        Title: "WMS - Products",
+        CompanyName: "Precision Parts Distributors",
+        Warehouse: "Lous",
+        Content: "Sample Content",
+        CSS: CSS_URL,
+        Products: data.LoadAllStockProducts(db), 
+    }
+
+    page.RenderHTMLTemplate(w, page)
+    return nil
+}
+
+
+// the form is not complete
 // non ajax version, simply http.Post
 func CreateProductHandler(w http.ResponseWriter, r *http.Request) error {
     err := r.ParseForm()
@@ -44,43 +67,55 @@ func CreateProductHandler(w http.ResponseWriter, r *http.Request) error {
         return err
     }
     // converting units per ctn to int
-    uCtn := r.FormValue("unitsCtn")
-    if uc, err := strconv.Atoi(uCtn); err != nil {
-        log.Printf("Error converting %s to integer.", uCtn)
-        return err
-    }
-    // converting ctns per pallet to int
-    ctnPal := r.FormValue("ctnPallet")
-    if ctp, err := strconv.Atoi(ctnPal); err != nil {
-        log.Printf("Error converting %s to integer.", ctnPal)
-        return err        
-    }
-    // converting cost per pallet to float64
-    costPal := r.FormValue("costPallet")
-    if csp, err := strconv.ParseFloat(costPal, 64); err != nil {
-        log.Printf("Error converting %s to float64.", costPal)
+    uCtn, err := ConvertStrInt(r.FormValue("unitsCtn"))
+    if err != nil {
         return err
     }
 
+    // converting ctns per pallet to int
+    ctnPal, err := ConvertStrInt(r.FormValue("ctnPallet"))
+    if err != nil {
+        return err
+    }
+
+    // converting cost per pallet to float64
+    costPal, err := ConvertStrFloat64(r.FormValue("costPallet"))
+    if err != nil {
+        return err
+    }
+    db, err := sql.Open("sqlite3", "testing.db")
+    if err != nil {
+        log.Fatal(err)
+        return err
+    }
     p := data.Product {
-        VendorId: data.FindVendorId(r.FormValue("vendor")),
-        Status: data.FindStatusId(r.FormValue("status")),
+        VendorId: data.FindVendorId(db, r.FormValue("vendor")),
+        Status: data.FindStatusId(db, r.FormValue("status")),
         Product: r.FormValue("product"),
         ProductCode: r.FormValue("productCode"),
         Description: r.FormValue("description"),
-        UnitsCtn: uc,
-        CtnPallet: ctp,
-        CostPallet: csp,
+        UnitsCtn: uCtn,
+        CtnPallet: ctnPal,
+        CostPallet: costPal,
     }
 
     if p.Product == "" || p.ProductCode == "" || p.CostPallet == 0.0 || p.CtnPallet == 0 || p.UnitsCtn == 0 {
         http.Error(w, "Missing form fields", http.StatusBadRequest)
         return nil
+    } else {
+        db, err := sql.Open("sqlite3", "testing.db")
+        if err != nil {
+            return err
+        }
+        p.InsertProduct(db)
     }
 
 
     http.Redirect(w, r, "/inventory", http.StatusSeeOther)
+    return nil
 }
 
 // testing theory here 
-func TestHandler(w http.ResponseWriter, r *http.Request) error {} 
+func TestHandler(w http.ResponseWriter, r *http.Request) error {
+    return nil
+} 

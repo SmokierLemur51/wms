@@ -21,11 +21,6 @@ import (
 // know when deliveries are coming in
 // average time from ordering to recieving
 
-type Unit struct {
-	Id          int
-	Unit        string
-	Description string
-}
 
 type Product struct {
 	Id            int
@@ -43,7 +38,7 @@ type Product struct {
 	SellingCtn    float64
 	CostUnit      float64
 	SellingUnit   float64
-	// Locations     []WarehouseBin
+	Locations 	   []WarehouseBin   	  
 }
 
 func RandomProducts() []Product {
@@ -116,3 +111,24 @@ func (p *Product) UpdateLocation() {}
 
 func (p *Product) UpdatePricing(margin float64) {} 
 
+
+// functions
+func LoadAllStockProducts(db *sql.DB) []Product {
+	var products []Product
+	rows, err := db.Query("SELECT * FROM products")
+	if err != nil {
+		log.Fatal(err)
+	}
+	for rows.Next() {
+		var p Product
+		if err := rows.Scan(&p.Id, &p.VendorId, &p.Status, &p.Product, &p.ProductCode, &p.Description, &p.UnitsCtn, 
+			&p.CtnPallet, &p.UnitsPallet, &p.CostPallet, &p.SellingPallet, &p.CostCtn, &p.SellingCtn, 
+			&p.CostUnit, &p.SellingUnit, &p.Location); err != nil {
+				log.Fatal(err)
+			}
+
+		fmt.Println(p.Product)
+		products = append(products, p)
+	}
+	return products
+}
