@@ -39,7 +39,7 @@ func PopulateVendors(db *sql.DB, v []Vendor) {
 func (v Vendor) InsertVendor(db *sql.DB, ) {
 	var execute bool
 	var err error
-	execute, err = CheckExisting(db, v.Vendor)
+	execute, err = CheckExistingVendor(db, v.Vendor)
 	if err != nil {
 		log.Println(err)
 		return
@@ -113,7 +113,7 @@ func (v Vendor) LoadSpecialOrderProducts(db *sql.DB) {
 }
 
 // queries
-func CheckVendorExistence(db *sql.DB, vendor string) (bool, error) {
+func CheckExistingVendor(db *sql.DB, vendor string) (bool, error) {
 	// returns true if it exists
 	var count int
 	rows, err := db.Query("SELECT COUNT(*) FROM vendors WHERE vendor = ? ", vendor)
@@ -160,4 +160,3 @@ func LoadVendorByName(db *sql.DB, vendor string) Vendor {
 func FindVendorId(db *sql.DB, v string) (int) {
 	return 1
 }
-

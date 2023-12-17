@@ -10,6 +10,8 @@ LoadAllStockProducts() & InsertService() >
 
 	Is there a way to pass over if the value is null??
 
+Recreate the CheckExisting func as just one rather than a different for each, just pass more arguments for table/col/item
+
 
 ~ routes/auth.go & main.go ~
 

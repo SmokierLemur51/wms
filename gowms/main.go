@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"net/http"
 
-	// "github.com/SmokierLemur51/gowms/data"
+	"github.com/SmokierLemur51/gowms/data"
 	"github.com/SmokierLemur51/gowms/routes"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -35,9 +35,14 @@ func init() {
 	
 	_, tokenString, _ := tokenAuth.Encode(map[string]interface{}{"user_id": 123})
 	fmt.Printf("DEBUG: a sample jwt is %v\n\n", tokenString)
+
+	// populate database
+	// data.PopulateDbCategories(db, data.CreateCategorySlice())
+	fmt.Printf("Category: Handguns ID: %d\n\n", data.FindDatabaseID(db, "categories", "category", "Handgun"))
 }
 
 func main() {
+
 	var PORT string = ":5000"
 	r := chi.NewRouter()
 	r.Use(middleware.RequestID)

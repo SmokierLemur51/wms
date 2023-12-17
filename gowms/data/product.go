@@ -26,6 +26,7 @@ type Product struct {
 	Id            int
 	VendorId      int
 	Status		  int
+	Category      int
 	Product       string
 	ProductCode   string
 	Description   string
@@ -38,15 +39,17 @@ type Product struct {
 	SellingCtn    float64
 	CostUnit      float64
 	SellingUnit   float64
-	Locations 	   []WarehouseBin   	  
+	// Locations 	   []WarehouseBin   
+	Location []Shelf 	  
+}
+
+func CostToSelling(cost, margin float64) float64 {
+	return cost / (1.00-(margin/100.00))
 }
 
 func RandomProducts() []Product {
 	return []Product{
-		{Product: "Pops", ProductCode: "874", Description: "Kevin Malone - The Office",
-			UnitsCtn: 12, CtnPallet: 48, CostPallet: 4500.00},
-		{Product: "HydroFlask", ProductCode: "jhafdkljklfjdlk", Description: "Drink water, aesthetically.",
-			UnitsCtn: 6, CtnPallet: 45, CostPallet: 6200.00},
+		{},
 	}	
 }
 
@@ -57,7 +60,7 @@ func PopulateProducts(db *sql.DB, p []Product) {
 	}
 }
 
-func CheckExisting(db *sql.DB, product string) (bool, error) {
+func CheckExistingProduct(db *sql.DB, product string) (bool, error) {
 	// returns true if it exists
 	var count int
 	rows, err := db.Query("SELECT COUNT(*) FROM products WHERE product = ? ", product)
@@ -80,7 +83,7 @@ func CheckExisting(db *sql.DB, product string) (bool, error) {
 func (p Product) InsertProduct(db *sql.DB) {
 	var execute bool
 	var err error
-	execute, err = CheckExisting(db, p.Product)
+	execute, err = CheckExistingProduct(db, p.Product)
 	if err != nil {
 		log.Println(err)
 		return
