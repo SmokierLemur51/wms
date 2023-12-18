@@ -13,7 +13,6 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-
 func CheckExistence(db *sql.DB, table, column, item string) (bool, error) {
 	// returns true if it exists
 	var count int
@@ -34,7 +33,7 @@ func CheckExistence(db *sql.DB, table, column, item string) (bool, error) {
 	return false, nil
 }
 
-func FindDatabaseID(db *sql.DB, table, column, item string) (int) {
+func FindDatabaseID(db *sql.DB, table, column, item string) int {
 	rows, err := db.Query(fmt.Sprintf("SELECT id FROM %s WHERE %s = ?", table, column), item)
 	if err != nil {
 		log.Fatal(err)
@@ -44,7 +43,7 @@ func FindDatabaseID(db *sql.DB, table, column, item string) (int) {
 	for rows.Next() {
 		err := rows.Scan(&id)
 		if err == sql.ErrNoRows {
-			fmt.Printf("\nError: %s\nItem: %s does not exist.\n")
+			fmt.Printf("\nError: %s\nItem: %s does not exist.\n", err, item)
 		}
 	}
 
