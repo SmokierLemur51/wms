@@ -1,0 +1,9 @@
+
+
+1. Thinking about restructuring and removing routes.go and instead grouping them in the main func
+   as this could be a more efficient way to utilize middleware
+
+2.  Also considering (saw this on stack overflow) someone designs their handlers to be methods on a 
+	struct. Using a database connection in the struct and rendering each page/handler is a method.
+
+3. on pages.go - why do i have data as a parameter ? the page is the data ?? 

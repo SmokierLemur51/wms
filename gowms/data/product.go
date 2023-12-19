@@ -43,6 +43,8 @@ type Product struct {
 	Location []Shelf 	  
 }
 
+
+
 func CostToSelling(cost, margin float64) float64 {
 	return cost / (1.00-(margin/100.00))
 }
@@ -103,7 +105,6 @@ func (p Product) InsertProduct(db *sql.DB) {
 	case true:
 		fmt.Printf("Product %s already exists.\n", p.Product)
 	}
-
 }
 
 func (p *Product) UpdateCostPallet(cost float64) {}
@@ -134,4 +135,10 @@ func LoadAllStockProducts(db *sql.DB) []Product {
 		products = append(products, p)
 	}
 	return products
+}
+
+// 
+
+func CreateSidingProductsSlice() []Product {
+	return []Product{}
 }

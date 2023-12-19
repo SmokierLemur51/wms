@@ -8,18 +8,20 @@ import (
     _ "github.com/mattn/go-sqlite3"
 )
 
+var COMPANY_NAME string = "Siding Distribution"
 
 func IndexHandler(w http.ResponseWriter, r *http.Request) error {
+    // this should have an introduction of the project
     page := PublicPageData{
         Page: "index.html",
         Title: "WMS",
-        CompanyName: "Precision Parts Distributors",
+        CompanyName: COMPANY_NAME,
         Warehouse: "Lous",
         Content: "Sample Content",
         CSS: CSS_URL,
     }
 
-    page.RenderHTMLTemplate(w, page)
+    page.RenderHTMLTemplate(w)
     return nil
 }
 
@@ -27,13 +29,13 @@ func InventoryHandler(w http.ResponseWriter, r *http.Request) error {
     page := PublicPageData{
         Page: "inventory.html",
         Title: "WMS - Inventory",
-        CompanyName: "Precision Parts Distributors",
+        CompanyName: COMPANY_NAME,
         Warehouse: "Lous",
         Content: "Sample Content",
         CSS: CSS_URL,
     }
 
-    page.RenderHTMLTemplate(w, page)
+    page.RenderHTMLTemplate(w)
     return nil
 }
 
@@ -46,14 +48,14 @@ func ProductsHandler(w http.ResponseWriter, r *http.Request) error {
     page := PublicPageData{
         Page: "products.html",
         Title: "WMS - Products",
-        CompanyName: "Precision Parts Distributors",
+        CompanyName: COMPANY_NAME,
         Warehouse: "Lous",
         Content: "Sample Content",
         CSS: CSS_URL,
         Products: data.LoadAllStockProducts(db), 
     }
 
-    page.RenderHTMLTemplate(w, page)
+    page.RenderHTMLTemplate(w)
     return nil
 }
 
@@ -89,8 +91,8 @@ func CreateProductHandler(w http.ResponseWriter, r *http.Request) error {
         return err
     }
     p := data.Product {
-        VendorId: data.FindVendorId(db, r.FormValue("vendor")),
-        Status: data.FindStatusId(db, r.FormValue("status")),
+        VendorId: data.FindDatabaseID(db, "vendors", "vendor", r.FormValue("vendor")),
+        Status: data.FindDatabaseID(db, "stock_status", "disposition" ,r.FormValue("status")),
         Product: r.FormValue("product"),
         ProductCode: r.FormValue("productCode"),
         Description: r.FormValue("description"),
@@ -114,8 +116,3 @@ func CreateProductHandler(w http.ResponseWriter, r *http.Request) error {
     http.Redirect(w, r, "/inventory", http.StatusSeeOther)
     return nil
 }
-
-// testing theory here 
-func TestHandler(w http.ResponseWriter, r *http.Request) error {
-    return nil
-} 

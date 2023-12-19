@@ -66,10 +66,76 @@ func (c Category) InsertCategory(db *sql.DB) {
 	}
 }
 
+func (c Category) UpdateCategory(db *sql.DB, ID int) {
+	var exists bool
+	var err error
+	exists, err = CheckExistingCategory(db, c.Category)
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
+
+	// remember this executes only if it does exist of course
+	switch exists {
+	case false:
+		fmt.Printf("Category <%s> does not exist.", c.Category)
+	case true:
+		result, err := db.Exec(
+			"UPDATE categories SET category = ?, c_description = ? WHERE id = ?",
+			c.Category, c.Description, ID,
+		)
+		if err != nil {
+			log.Fatal(err)
+		}
+		rowsAffected, err := result.RowsAffected()
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		fmt.Printf("Updated %d rows.\n", rowsAffected)
+	}
+}
+
+func LoadAllCategories(db *sql.DB) []Category {
+	rows, err := db.Query("SELECT id, category, c_description FROM categories")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var categories []Category
+	for rows.Next() {
+		var c Category
+		if err := rows.Scan(&c.Id, &c.Category, &c.Description); err != nil {
+			log.Fatal(err)
+		}
+		// fmt.Printf("\tCategory: %s\n\tDescription: %s\n", c.Category, c.Description)
+		categories = append(categories, c)
+	}
+	return categories
+}
+
+func CreateSidingCategorySlice() []Category {
+	return []Category{
+		{Category:"Vinyl Siding", Description:"Exterior vinyl siding products."},
+		{Category:"Vinyl Accessories",Description:"Accessories for vinyl siding."},
+		{Category:"Mounting Blocks",Description:"Mounting blocks such as light blocks, split/electrical blocks, or water spickets."},
+		{Category:"Composite Siding", Description:"Exterior composite siding products."},
+		{Category:"Fiber Cement Siding",Description:"Fiber cement related products."},
+		{Category:"PVC Moulding",Description:"PVC trim, moulding, and accessories."},
+		{Category:"Decking",Description:"Decking products for wood based deck materials."},
+		{Category:"Composite Decking",Description:"Composite decking products. PVC/plastic-film and recycled wood materials."},
+		{Category:"Gutter Coil",Description:"Aluminum gutter coil. For 5\" and 6\" spools.."},
+		{Category:"Gutter Accessories",Description:"Aluminum gutter accessories."},
+		{Category:"Trim Coil",Description:"Aluminum roll for exterior finishing/wrapping."},
+		{Category:"Windows",Description:"Windows and window accessories."},
+	}
+}
+
+ 
 /*
 The rest of this page are for a firearms distribution network
 */
-func CreateCategorySlice() []Category {
+func CreateArmsDealerCategorySlice() []Category {
 	return []Category{
 		{Category: "Handgun", Description: "Compact and versatile, our selection of handguns includes a variety of models suitable for personal protection, target shooting, and concealed carry. Available in different calibers, each handgun is designed for reliability and ease of use."},
 		{Category: "Rifles", Description: "Our rifle collection features precision-engineered firearms suitable for various applications, from hunting to long-range shooting. Explore our diverse range of rifles, each crafted with attention to accuracy, durability, and performance."},

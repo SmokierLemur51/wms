@@ -20,12 +20,12 @@ type PublicPageData struct {
 
 var CSS_URL string = "/static/css/main.css"
 
-func (p PublicPageData) RenderHTMLTemplate(w http.ResponseWriter, data PublicPageData) {
+func (p PublicPageData) RenderHTMLTemplate(w http.ResponseWriter) {
     tmpl, err := template.ParseFiles("templates/" + p.Page)
     if err != nil {
         return
     }
-    err = tmpl.Execute(w, data)
+    err = tmpl.Execute(w, p)
     if err != nil {
         return
     }

@@ -19,22 +19,6 @@ type Vendor struct {
 	SpecialOrderProducts []Product
 }
 
-// populating random values for testing
-func RandomVendors() []Vendor {
-	return []Vendor{
-		{Vendor: "Mars, Incorporated", Street1: "6885 Elm Street McLean", City: "McLean", State: "VA", Zip: "22101"},
-		{Vendor: "Ford Motor Company", Street1: "1 American Rd", City: "Dearborn", State: "MI", Zip: "48126"},
-		{Vendor: "Dell", Street1: "1 Dell Way", City:"Round Rock", State: "TX", Zip:"78664"},
-	}
-}
-
-func PopulateVendors(db *sql.DB, v []Vendor) {
-	for _, vendor := range v {
-		vendor.InsertVendor(db)
-	}
-}
-// end testing
-// ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 // vendor methods
 func (v Vendor) InsertVendor(db *sql.DB, ) {
 	var execute bool
@@ -157,6 +141,21 @@ func LoadVendorByName(db *sql.DB, vendor string) Vendor {
 	return v
 }
 
-func FindVendorId(db *sql.DB, v string) (int) {
-	return 1
+// populate original values
+func CreateSidingVendorSlice() []Vendor {
+	return []Vendor{
+		{Vendor:"Mastic",Street1:"5020 Weston Parkway",Street2:"Suite 400",City:"Cary",State:"NC",Zip:"27513"},
+		{Vendor:"Royal",Street1:"91 Royal Group Crescent",Street2:"",City:"Woodbridge",State:"ON", Zip:"L4H 1X9"},
+		{Vendor:"US Lumber",Street1:"6002 Sunnyside Rd",Street2:"",City:"Indianapolis",State:"IN", Zip:"46"},
+		{Vendor:"Lumbermans",Street1:"4433 Stafford Ave SW",Street2:"",City:"Grand Rapids",State:"MI", Zip:"49548"},
+		{Vendor:"Palmer-Donavin",Street1:"3620 Langley Dr",Street2:"",City:"Hebron",State:"KY", Zip:"41048"},
+		{Vendor:"Wincore",Street1:"250 Staunton Turnpike",Street2:"",City:"Parkersburg",State:"WV", Zip:"26104"},		
+		{Vendor:"Atrium",Street1:"Somewhere I cant find",Street2:"",City:"Nowhere",State:"<3", Zip:"11111"},		
+	}
+}
+
+func PopulateVendors(db *sql.DB, v []Vendor) {
+	for _, vendor := range v {
+		vendor.InsertVendor(db)
+	}
 }

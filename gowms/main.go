@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/SmokierLemur51/gowms/data"
+	// "github.com/SmokierLemur51/gowms/data"
 	"github.com/SmokierLemur51/gowms/routes"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -27,18 +27,20 @@ func init() {
 		log.Fatal(err)
 	}
 	defer db.Close()
-	// data.PopulateVendors(db, data.RandomVendors())
-	// data.PopulateProducts(db, data.RandomProducts())
-	
 	// jwtauth 
 	tokenAuth = jwtauth.New("HS256", []byte("secret"), nil)
 	
 	_, tokenString, _ := tokenAuth.Encode(map[string]interface{}{"user_id": 123})
 	fmt.Printf("DEBUG: a sample jwt is %v\n\n", tokenString)
 
-	// populate database
-	// data.PopulateDbCategories(db, data.CreateCategorySlice())
-	fmt.Printf("Category: Handguns ID: %d\n\n", data.FindDatabaseID(db, "categories", "category", "Handgun"))
+	// populate categories
+	// data.PopulateDbCategories(db, data.CreateSidingCategorySlice())
+
+	// populate vendors
+	// data.PopulateVendors(db, data.CreateSidingVendorSlice())
+
+	// populate products
+	
 }
 
 func main() {
