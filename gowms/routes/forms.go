@@ -24,3 +24,4 @@ func ConvertStrFloat64(f string) (float64, error) {
     }
     return conversion, nil
 }
+

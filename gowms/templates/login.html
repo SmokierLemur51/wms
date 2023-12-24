@@ -1,0 +1,61 @@
+<!-- a simple welcome page using bootstrap -->
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="{{ .CSS }}">
+        <title>{{ .Title }}</title>
+    </head>
+    <body>
+        <header>
+            <!-- top navbar start -->
+
+            <!-- no navbar here  -->
+
+            <!-- top navbar end -->
+        </header>
+
+        <br>
+
+        <main  style="height: 100vh;">
+            <br>
+            <div class="container-lg" >
+                <div class="card">
+                    <div class="card-header">
+                    <h3>Please Enter Credentials</h3>
+                    </div>
+                    <div class="card-body">
+                        <form action="/process-login" method="POST">
+                            <div>
+                                <label for="username">Username</label>
+                                <input type="text" id="username" >
+                            </div>
+                            <div>
+                                <label for="password">Password</label>
+                                <input type="text" id="password" >
+                            </div>
+                            <button type="submit">Submit</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+        
+        <br></br>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+        <footer class="footer">
+            <div class="container">
+                <div class="row">
+                    <div class="col-12">
+                        <p>&copy; 2023 Lee Development. All rights reserved.</p>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </body>
+
+
+</html>

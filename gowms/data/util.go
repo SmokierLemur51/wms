@@ -6,7 +6,6 @@
 		FindDatabaseID()
 		ToTitleCase() << pairs nicely with the above 
 */
-
 package data
 
 import (
@@ -14,7 +13,6 @@ import (
 	"fmt"
 	"log"
 	"strings"
-
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -66,3 +64,8 @@ func ToTitleCase(s string) string {
 	// might never use this <3
 	return strings.Title(strings.ToLower(s))
 }
+
+func CalculateSelling(cost, margin float64) float64 {
+    return cost * (1.00 - (margin/100.00))
+}
+
