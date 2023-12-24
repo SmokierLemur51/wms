@@ -3,15 +3,24 @@ package routes
 import (
 	"net/http"
 	"log"
+	"fmt"
 	"database/sql"
-	"encoding/json"
+	// "encoding/json"
 	"time"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/go-chi/chi/v5"
-	"github.com/golang-jwt/jwt"
+	"github.com/golang-jwt/jwt/v5"
+)
+
+// jwt docs
+var (
+	key []byte 
+	t *jwt.Token
+	s string
 )
 
 var COMPANY_NAME string = "Logans Building Products"
+
 
 type Controller struct {
 	db *sql.DB
@@ -35,6 +44,9 @@ func (c Controller) ConfigureRoutes(r chi.Router) {
 
 	r.Method(http.MethodPost, "/create-product", c.CreateProduct())
 	r.Method(http.MethodPost, "/process-login", c.ProcessLogin())
+
+	// testing
+	r.Method(http.MethodGet, "/testing", c.TestingHandler())
 }
 
 func (c Controller) LoginHandler() http.HandlerFunc {
@@ -94,61 +106,88 @@ func (c Controller) ProductsHandler() http.HandlerFunc {
 Post methods gang 
 */
 
-var jwtKey = []byte("secret_key")
-
-var users  = map[string]string{
-	"user1": "passone",
-	"user2": "passtwo",
+type CustomClaims struct {
+	Username string
+	Password string
+	jwt.RegisteredClaims
 }
 
-type Credentials struct {
-	Username string `json:"username"`
-	Password string `json:"password"` 
-}
+func createToken(username, password string) (string, error) {
+	claims := CustomClaims{
+		Username: username,
+		Password: password,
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
+			IssuedAt: jwt.NewNumericDate(time.Now()),
+			NotBefore: jwt.NewNumericDate(time.Now()),
+			Subject: username,
+		},
+	}
 
-type Claims struct {
-	Username string `json:"username"`
-	jwt.StandardClaims 
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	signedToken, err := token.SignedString(key)
+	if err != nil {
+		return "", err
+	}
+	return signedToken, nil
 }
 
 func (c Controller) ProcessLogin() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var credentials Credentials
-		err := json.NewDecoder(r.Body).Decode(&credentials)
+		if err := r.ParseForm(); err != nil {
+			log.Fatal(err)
+		}
+
+		token, err := createToken(r.FormValue("username"), r.FormValue("password"))
 		if err != nil {
-			w.WriteHeader(http.StatusBadRequest)
+			log.Fatal(err)
 		}
 
-		expectedPassword, ok := users[credentials.Username]
+		// w.Write([]byte(token))
+		http.SetCookie(w, &http.Cookie{
+			Name: "jwt_token",
+			Value: token,
+			Expires: time.Now().Add(time.Hour * 24),
+			HttpOnly: true,
+		})
 
-		if !ok || expectedPassword != credentials.Password {
-			w.WriteHeader(http.StatusUnauthorized)
-		}
+		http.Redirect(w, r, "/testing", http.StatusFound)
+	}
+}
 
-		expirationTime := time.Now().Add(time.Minute * 5)
-
-		claims := &Claims{
-			Username: credentials.Username,
-			StandardClaims: jwt.StandardClaims{
-				ExpiresAt: expirationTime,
-			},
-		}
-
-		token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-		tokenstring, err := token.SignString(jwtKey)
+func (c Controller) TestingHandler() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		cookie, err := r.Cookie("jwt_token")
 		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
+			http.Error(w, "No auth", http.StatusUnauthorized)
 		}
 
-		http.SetCookie(w, 
-			&http.Cookie{
-				Name: "token",
-				Value: tokenstring,
-				Expires: expirationTime,
-			})
+		tokenString := cookie.Value
 
+		// parse and validate token
+		claims := &CustomClaims{}
+		token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
+			return key, nil
+		})
 
-		http.Redirect(w, r, "/", http.StatusFound)
+		if err != nil {
+			http.Error(w, "Failed to parse token.", http.StatusUnauthorized)
+		}
+
+		// if !token.Valid {
+		// 	http.Error(w, "Invalid token", http.StatusUnauthorized)
+		// }
+
+		if claims, ok := token.Claims.(*CustomClaims); ok && token.Valid {
+			fmt.Printf("%v %v", claims.Username, claims.RegisteredClaims.Issuer)
+		} else {
+			fmt.Println(err)
+		}
+
+		username := claims.Username
+		password := claims.Password
+
+		w.Write([]byte(fmt.Sprintf("Protected area accessed by user: %s\t password: %s", username, password)))
 	}
 }
 
@@ -161,5 +200,3 @@ func (c Controller) CreateProduct() http.HandlerFunc {
 		// form actions here 
 	}
 }
-
-
